@@ -1,0 +1,27 @@
+cat > practice1-architecture/diagrams/container.puml << 'EOF'
+@startuml
+' ============================================
+' ДИАГРАММА КОНТЕЙНЕРОВ (C2) - UPTIME MONITOR
+' ============================================
+
+!include ../libs/C4_Context.puml
+
+Person(user, "Пользователь", "Управляет URL для мониторинга")
+
+System_Boundary(um, "Система мониторинга Uptime") {
+    System(api, "API Gateway", "FastAPI + Python\nREST API: CRUD операции с URL, просмотр истории")
+    System(worker, "Worker Сервис", "Python + aiohttp\nПериодическая проверка URL")
+    SystemDb(db, "PostgreSQL", "PostgreSQL 15\nХранит URL и результаты проверок")
+}
+
+System_Ext(telegram, "Telegram Bot API", "Отправка уведомлений")
+
+Rel(user, api, "HTTPS /api/*", "REST API")
+Rel(api, db, "SQLAlchemy", "TCP 5432")
+Rel(worker, db, "Asyncpg", "TCP 5432")
+Rel(worker, api, "HTTP POST /api/check-results", "Отправка результатов")
+Rel(worker, telegram, "HTTPS", "Отправка сообщений")
+
+SHOW_LEGEND()
+@enduml
+EOF

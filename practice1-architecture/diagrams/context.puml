@@ -1,0 +1,27 @@
+cat > practice1-architecture/diagrams/context.puml << 'EOF'
+@startuml
+' ============================================
+' ДИАГРАММА КОНТЕКСТА (C1) - UPTIME MONITOR
+' ============================================
+
+!include ../libs/C4_Context.puml
+
+Person(user, "Пользователь", "Управляет URL для мониторинга и просматривает отчёты")
+
+System(api, "API Gateway", "Управляет URL, историей проверок и статистикой")
+
+System(worker, "Worker Сервис", "Периодически проверяет доступность веб-сайтов")
+
+SystemDb(db, "PostgreSQL", "Хранит URL и историю проверок")
+
+System_Ext(telegram, "Telegram Бот", "Отправляет уведомления о сбоях и восстановлении")
+
+Rel(user, api, "HTTPS", "Добавление/изменение/удаление URL, просмотр отчётов")
+Rel(api, db, "SQL", "Чтение/запись URL и истории")
+Rel(worker, db, "SQL", "Получение списка URL, сохранение результатов")
+Rel(worker, api, "HTTP", "Отправка результатов проверки")
+Rel(worker, telegram, "HTTPS", "Отправка уведомлений")
+
+SHOW_LEGEND()
+@enduml
+EOF
