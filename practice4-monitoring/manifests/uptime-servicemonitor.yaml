@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: uptime-monitor
+  namespace: prometheus
+  labels:
+    release: prometheus-operator
+spec:
+  selector:
+    matchLabels:
+      app: api-gateway
+  namespaceSelector:
+    matchNames:
+    - uptime-monitor
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s

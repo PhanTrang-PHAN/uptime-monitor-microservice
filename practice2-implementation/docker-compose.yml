@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: uptime-postgres
+    environment:
+      POSTGRES_USER: uptime_user
+      POSTGRES_PASSWORD: uptime_pass
+      POSTGRES_DB: uptime_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - uptime-network
+
+  api-gateway:
+    build: ./services/api-gateway
+    container_name: uptime-api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://uptime_user:uptime_pass@postgres:5432/uptime_db
+    depends_on:
+      - postgres
+    networks:
+      - uptime-network
+
+  worker:
+    build: ./services/worker
+    container_name: uptime-worker
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql://uptime_user:uptime_pass@postgres:5432/uptime_db
+      API_GATEWAY_URL: http://api-gateway:8000
+      CHECK_INTERVAL_SECONDS: 30
+    depends_on:
+      - postgres
+      - api-gateway
+    networks:
+      - uptime-network
+
+networks:
+  uptime-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
