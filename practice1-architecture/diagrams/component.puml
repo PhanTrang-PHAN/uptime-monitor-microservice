@@ -1,0 +1,29 @@
+cat > practice1-architecture/diagrams/component.puml << 'EOF'
+@startuml
+' ============================================
+' ДИАГРАММА КОМПОНЕНТОВ (C3) - API GATEWAY
+' ============================================
+
+!include ../libs/C4_Context.puml
+
+System_Boundary(api_gateway, "API Gateway Internal Structure") {
+    
+    System(url_controller, "URL Контроллер", "FastAPI Router\nCRUD операции для URL мониторинга")
+    
+    System(history_controller, "История Контроллер", "FastAPI Router\nПросмотр истории и статистики uptime")
+    
+    System(webhook_controller, "Webhook Контроллер", "FastAPI Router\nПриём результатов проверки от Worker")
+    
+    System(repo, "URL Репозиторий", "SQLAlchemy\nДоступ к базе данных (Repository Pattern)")
+    
+    SystemDb(db, "PostgreSQL", "PostgreSQL\nХранение URL и истории проверок")
+}
+
+Rel(url_controller, repo, "использует", "")
+Rel(history_controller, repo, "использует", "")
+Rel(webhook_controller, repo, "использует", "")
+Rel(repo, db, "SQL", "чтение/запись")
+
+SHOW_LEGEND()
+@enduml
+EOF

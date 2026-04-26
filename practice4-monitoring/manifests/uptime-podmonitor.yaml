@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: uptime-monitor
+  namespace: prometheus
+  labels:
+    release: prometheus-operator
+spec:
+  selector:
+    matchLabels:
+      app: api-gateway
+  namespaceSelector:
+    matchNames:
+    - uptime-monitor
+  podMetricsEndpoints:
+  - port: 8000
+    path: /metrics
+    interval: 15s

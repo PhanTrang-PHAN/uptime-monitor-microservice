@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: extra-scrape-config
+  namespace: prometheus
+  labels:
+    app: prometheus-operator
+data:
+  extra-scrape.yaml: |
+    - job_name: 'uptime-monitor-direct'
+      static_configs:
+      - targets: ['api-gateway.uptime-monitor.svc.cluster.local:8000']
+      metrics_path: /metrics
+      scrape_interval: 15s
