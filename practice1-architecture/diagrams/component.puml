@@ -1,47 +1,29 @@
-
+cat > practice1-architecture/diagrams/component.puml << 'EOF'
 @startuml
 ' ============================================
-' DIAGRAM COMPONENT (C3) - API GATEWAY
-' Component diagram - Chi tiết bên trong API Gateway
+' ДИАГРАММА КОМПОНЕНТОВ (C3) - API GATEWAY
 ' ============================================
 
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!include ../libs/C4_Context.puml
 
-' === ĐỊNH NGHĨA CONTAINER CHA ===
-Container(api, "API Gateway")
-
-' === CẤU TRÚC BÊN TRONG API GATEWAY ===
-Boundary(api, "Внутренняя структура API Gateway (API Gateway Internal Structure)") {
+System_Boundary(api_gateway, "API Gateway Internal Structure") {
     
-    Component(url_controller, "URL Контроллер (URL Controller)", "FastAPI Router", 
-        "CRUD операции для URL мониторинга - CRUD operations cho URLs cần theo dõi")
+    System(url_controller, "URL Контроллер", "FastAPI Router\nCRUD операции для URL мониторинга")
     
-    Component(history_controller, "История Контроллер (History Controller)", "FastAPI Router", 
-        "Просмотр истории и статистики uptime - Xem lịch sử và thống kê uptime")
+    System(history_controller, "История Контроллер", "FastAPI Router\nПросмотр истории и статистики uptime")
     
-    Component(webhook_controller, "Webhook Контроллер (Webhook Controller)", "FastAPI Router", 
-        "Приём результатов от Worker - Nhận kết quả từ Worker")
+    System(webhook_controller, "Webhook Контроллер", "FastAPI Router\nПриём результатов проверки от Worker")
     
-    Component(repo, "URL Репозиторий (URL Repository)", "SQLAlchemy Repository Pattern", 
-        "Доступ к базе данных - Truy xuất database")
+    System(repo, "URL Репозиторий", "SQLAlchemy\nДоступ к базе данных (Repository Pattern)")
     
-    Component(metric_exporter, "Экспорт метрик (Metric Exporter)", "Prometheus Client Library", 
-        "Экспорт метрик: количество запросов, задержка, бизнес-метрики - Export metrics: request count, latency, business metrics")
-    
-    ' Database component
-    Component_DB(db, "PostgreSQL", "Database", 
-        "Хранение данных - Lưu dữ liệu")
+    SystemDb(db, "PostgreSQL", "PostgreSQL\nХранение URL и истории проверок")
 }
 
-' === KẾT NỐI NỘI BỘ ===
-Rel(url_controller, repo, "использует - uses")
-Rel(history_controller, repo, "использует - uses")
-Rel(webhook_controller, repo, "использует - uses")
-Rel(repo, db, "SQL", "чтение/запись - đọc/ghi dữ liệu")
-
-' === KẾT NỐI VỚI EXTERNAL ===
-Rel(metric_exporter, prometheus, "Expose /metrics", "HTTP")
+Rel(url_controller, repo, "использует", "")
+Rel(history_controller, repo, "использует", "")
+Rel(webhook_controller, repo, "использует", "")
+Rel(repo, db, "SQL", "чтение/запись")
 
 SHOW_LEGEND()
-
 @enduml
+EOF

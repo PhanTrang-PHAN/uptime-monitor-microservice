@@ -1,16 +1,27 @@
-
+cat > practice1-architecture/diagrams/container.puml << 'EOF'
 @startuml
 ' ============================================
-' DIAGRAM CONTAINER (C2) - UPTIME MONITOR
-' Container diagram - Chi tiết hơn context
+' ДИАГРАММА КОНТЕЙНЕРОВ (C2) - UPTIME MONITOR
 ' ============================================
 
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-' External connections
-Rel(worker, telegram, "HTTPS", "Отправка сообщений - Gửi tin nhắn")
-Rel(api, prometheus, "GET /metrics", "HTTP")
-Rel(worker, prometheus, "GET /metrics", "HTTP")
+!include ../libs/C4_Context.puml
+
+Person(user, "Пользователь", "Управляет URL для мониторинга")
+
+System_Boundary(um, "Система мониторинга Uptime") {
+    System(api, "API Gateway", "FastAPI + Python\nREST API: CRUD операции с URL, просмотр истории")
+    System(worker, "Worker Сервис", "Python + aiohttp\nПериодическая проверка URL")
+    SystemDb(db, "PostgreSQL", "PostgreSQL 15\nХранит URL и результаты проверок")
+}
+
+System_Ext(telegram, "Telegram Bot API", "Отправка уведомлений")
+
+Rel(user, api, "HTTPS /api/*", "REST API")
+Rel(api, db, "SQLAlchemy", "TCP 5432")
+Rel(worker, db, "Asyncpg", "TCP 5432")
+Rel(worker, api, "HTTP POST /api/check-results", "Отправка результатов")
+Rel(worker, telegram, "HTTPS", "Отправка сообщений")
 
 SHOW_LEGEND()
-
 @enduml
+EOF
