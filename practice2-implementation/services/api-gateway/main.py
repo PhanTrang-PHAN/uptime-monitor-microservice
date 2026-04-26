@@ -133,6 +133,40 @@ def receive_check_result(data: dict, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Result received"}
 
+
+@app.get("/api/summary")
+def get_summary(db: Session = Depends(get_db)):
+    """Get summary statistics for all URLs"""
+    from sqlalchemy import func
+    
+    urls = db.query(URL).filter(URL.is_active == True).all()
+    summary = []
+    for url in urls:
+        up_count = db.query(func.count(CheckHistory.id)).filter(
+            CheckHistory.url_id == url.id,
+            CheckHistory.is_available == True
+        ).scalar() or 0
+        
+        down_count = db.query(func.count(CheckHistory.id)).filter(
+            CheckHistory.url_id == url.id,
+            CheckHistory.is_available == False
+        ).scalar() or 0
+        
+        total = up_count + down_count
+        uptime_percent = (up_count / total * 100) if total > 0 else 0
+        
+        summary.append({
+            "url_id": url.id,
+            "name": url.name,
+            "url": url.url,
+            "up_count": up_count,
+            "down_count": down_count,
+            "total_checks": total,
+            "uptime_percent": round(uptime_percent, 2)
+        })
+    
+    return {"summary": summary}
+
 @app.get("/metrics")
 def metrics():
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
