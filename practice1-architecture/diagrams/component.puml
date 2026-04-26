@@ -1,0 +1,47 @@
+
+@startuml
+' ============================================
+' DIAGRAM COMPONENT (C3) - API GATEWAY
+' Component diagram - Chi tiết bên trong API Gateway
+' ============================================
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' === ĐỊNH NGHĨA CONTAINER CHA ===
+Container(api, "API Gateway")
+
+' === CẤU TRÚC BÊN TRONG API GATEWAY ===
+Boundary(api, "Внутренняя структура API Gateway (API Gateway Internal Structure)") {
+    
+    Component(url_controller, "URL Контроллер (URL Controller)", "FastAPI Router", 
+        "CRUD операции для URL мониторинга - CRUD operations cho URLs cần theo dõi")
+    
+    Component(history_controller, "История Контроллер (History Controller)", "FastAPI Router", 
+        "Просмотр истории и статистики uptime - Xem lịch sử và thống kê uptime")
+    
+    Component(webhook_controller, "Webhook Контроллер (Webhook Controller)", "FastAPI Router", 
+        "Приём результатов от Worker - Nhận kết quả từ Worker")
+    
+    Component(repo, "URL Репозиторий (URL Repository)", "SQLAlchemy Repository Pattern", 
+        "Доступ к базе данных - Truy xuất database")
+    
+    Component(metric_exporter, "Экспорт метрик (Metric Exporter)", "Prometheus Client Library", 
+        "Экспорт метрик: количество запросов, задержка, бизнес-метрики - Export metrics: request count, latency, business metrics")
+    
+    ' Database component
+    Component_DB(db, "PostgreSQL", "Database", 
+        "Хранение данных - Lưu dữ liệu")
+}
+
+' === KẾT NỐI NỘI BỘ ===
+Rel(url_controller, repo, "использует - uses")
+Rel(history_controller, repo, "использует - uses")
+Rel(webhook_controller, repo, "использует - uses")
+Rel(repo, db, "SQL", "чтение/запись - đọc/ghi dữ liệu")
+
+' === KẾT NỐI VỚI EXTERNAL ===
+Rel(metric_exporter, prometheus, "Expose /metrics", "HTTP")
+
+SHOW_LEGEND()
+
+@enduml

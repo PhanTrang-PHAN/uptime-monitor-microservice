@@ -1,0 +1,16 @@
+
+@startuml
+' ============================================
+' DIAGRAM CONTAINER (C2) - UPTIME MONITOR
+' Container diagram - Chi tiết hơn context
+' ============================================
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+' External connections
+Rel(worker, telegram, "HTTPS", "Отправка сообщений - Gửi tin nhắn")
+Rel(api, prometheus, "GET /metrics", "HTTP")
+Rel(worker, prometheus, "GET /metrics", "HTTP")
+
+SHOW_LEGEND()
+
+@enduml
