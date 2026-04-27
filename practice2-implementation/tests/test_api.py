@@ -21,14 +21,15 @@ async def test_create_url():
             f"{BASE_URL}/api/urls",
             json={
                 "name": "Google",
-                "url": "https://google.com",
+                "url": "https://testunique.com",
                 "check_interval_seconds": 60
             }
         )
         assert response.status_code == 200
         data = response.json()
         assert data["name"] == "Google"
-        assert data["url"] == "https://google.com"
+        assert data["url"] == "https://testunique.com"
+
 
 @pytest.mark.asyncio
 async def test_get_urls():

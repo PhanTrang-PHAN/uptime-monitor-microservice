@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+data:
+  alertmanager.yml: |
+    route:
+      group_by: ['alertname']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 12h
+      receiver: 'telegram'
+    receivers:
+    - name: 'telegram'
+      webhook_configs:
+      - url: 'https://api.telegram.org/bot8648339817:AAF7-PGF-WtCgmeX3O2vphkFtFPLxLPm70Q/sendMessage'
+        send_resolved: true
+        http_config:
+          headers:
+            Content-Type: 'application/json'
+        message: |
+          {
+            "chat_id": "-5164131024",
+            "text": "🚨 [FIRING] {{ .GroupLabels.alertname }}\n{{ .CommonAnnotations.summary }}\n\nDescription: {{ .CommonAnnotations.description }}",
+            "parse_mode": "HTML"
+          }
